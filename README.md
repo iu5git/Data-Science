@@ -2,7 +2,7 @@
 Репозиторий курса НИРС по машинному обучению
 
 ### Предсказание спроса с помощью градиентного бустинга
-- Описание подхода, в файле [.pdf](/demand_boosting/Boosting description.pdf)
+- Описание подхода, в файле [.pdf](/demand_boosting/Boosting%20description.pdf)
 - Пример реализации в [ноутбуке](/demand_boosting/boosting_demand.ipynb), можно использовать как бейзлайн
 - Данные в [.zip](/demand_boosting/Product_demand.zip)
 
