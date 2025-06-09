@@ -36,13 +36,15 @@
 
 ## Темы
 
-### Кластеризация данных LiDAR 
+### Обработка данных LiDAR 
 1. Сегментация деревьев из облака точек
 - [Сегментация](/lidar_segmentation/tree_segmentation.ipynb) облака точек на отдельные деревья. [Файл](/lidar_segmentation/example.pcd) для примера
 - [Данные](/lidar_segmentation/segmentation-dataset.h5) карбонового полигона
 - [Мастер-класс](https://www.youtube.com/watch?v=UafpYEm3Uiw) по Cloud Compare
 
 2. Создание трехмерных моделей объектов на основе облака точек
+
+- [Создание 3D-моделей из LiDAR](/3D-models/README.md)
 
 ### Кластеризация данных измерений гибридного сопроцессора 
 
