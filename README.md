@@ -77,3 +77,5 @@
 - Пример реализации в [ноутбуке](/demand_boosting/boosting_demand.ipynb), можно использовать как бейзлайн
 - Данные в [.zip](/demand_boosting/Product_demand.zip)
 
+### Генерация синтетического КТ из МРТ
+- Реализация в [ноутбуке](/MRI-to-CT_Synthesis/MRI-to-CT_Synthesis.ipynb)
