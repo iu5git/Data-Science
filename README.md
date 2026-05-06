@@ -78,4 +78,5 @@
 - Данные в [.zip](/demand_boosting/Product_demand.zip)
 
 ### Генерация синтетического КТ из МРТ
-- Реализация в [ноутбуке](/MRI-to-CT_Synthesis/MRI-to-CT_Synthesis.ipynb)
+- Реализация в [ноутбуке](/MRI-to-CT_synthesis/MRI_to_CT_Synthesis.ipynb)
+
