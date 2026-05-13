@@ -1,0 +1,101 @@
+Predictor:
+  Model:
+    classpath: Model:UNetpp5
+    dim: 2
+    UNetpp5:
+      ModelPatch: None
+      outputs_criterions: {}
+      pretrained: false
+
+      dim: 2
+  Dataset:
+    groups_src:
+      MR:
+        groups_dest:
+          MR:
+            transforms:
+              Standardize:
+                lazy: false
+                mean: None
+                std: None
+                mask: MASK
+                inverse: false
+              Mask:
+                path: MASK
+                value_outside: -2
+            patch_transforms: None
+            is_input: true
+      MASK:
+        groups_dest:
+          MASK:
+            transforms: None
+            patch_transforms: None
+            is_input: false
+
+    augmentations:
+      DataAugmentation_0:
+        data_augmentations:
+          Flip:
+            f_prob: [0, 0, 1]
+            prob: 1
+        nb: 1
+      DataAugmentation_1:
+        data_augmentations:
+          Flip:
+            f_prob: [0, 1, 0]
+            prob: 1
+        nb: 1
+
+    Patch:
+      patch_size: [1, 512, 512]
+      overlap: None
+      mask: None
+      pad_value: -1
+      extend_slice: 4
+
+    dataset_filenames:
+    - ./Dataset:a:mha
+
+    use_cache: false
+    batch_size: 1
+
+    subset: None
+  outputs_dataset:
+    Head:Tanh:
+      OutputDataset:
+        name_class: OutSameAsGroupDataset
+        final_transforms:
+          UnNormalize:UnNormalize: {}
+          Mask:
+            path: MASK
+            value_outside: -1024
+          TensorCast:
+            dtype: int16
+            inverse: false
+        dataset_filename: Dataset:mha
+        group: sCT
+        same_as_group: MR:MR
+        reduction: Mean
+        Mean: {}
+        before_reduction_transforms:
+          Normalize:
+            lazy: false
+            channels: None
+            min_value: -1
+            max_value: 1
+            inverse: true
+        after_reduction_transforms:
+          Normalize:
+            lazy: false
+            channels: None
+            min_value: -1
+            max_value: 1
+            inverse: true
+        patch_combine: None
+
+  train_name: TRAIN_01
+  manual_seed: 32
+  gpu_checkpoints: None
+  combine: Mean
+  autocast: false
+  data_log: None
