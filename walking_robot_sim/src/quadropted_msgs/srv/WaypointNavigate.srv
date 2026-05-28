@@ -1,0 +1,6 @@
+# Request: index of the waypoint to navigate to (-1 = all waypoints)
+int32 index
+---
+# Result
+bool success
+string message

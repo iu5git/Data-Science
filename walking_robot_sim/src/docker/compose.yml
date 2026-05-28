@@ -1,0 +1,174 @@
+# Docker Compose файл для симуляции ходячего робота
+#
+# Этот файл определяет сервисы, необходимые для запуска симуляции робота в Gazebo
+# с использованием ROS2 Jazzy и Docker.
+#
+# Структура:
+# - x-basic: Базовая конфигурация для сервисов с GUI
+# - x-gui_env: Переменные окружения для GUI приложений
+# - x-basic-nogui: Базовая конфигурация для сервисов без GUI
+# - services: Определение сервисов
+# - volumes: Определение именованных томов
+
+# Базовая конфигурация шаблона для сервисов, которым нужен доступ к GUI
+# ПРЕДУПРЕЖДЕНИЕ: Использование privileged: true и network_mode: host может создать
+# уязвимости безопасности. Используйте только в доверенной среде разработки.
+x-basic: &basic # Разрешить обмен данными между процессами в контейнере и хостом
+  ipc: host
+  # Включить stdin для интерактивных команд
+  stdin_open: true
+  # Использовать сетевой стек хоста для прямого доступа к сети хоста
+  network_mode: host
+  # Выделить псевдо-TTY для интерактивных процессов
+  tty: true
+  # Предоставить расширенные привилегии контейнеру
+  # ПРЕДУПРЕЖДЕНИЕ: Это снижает безопасность, но необходимо для доступа к GUI и некоторым системным ресурсам
+  privileged: true
+  # Переменные окружения, необходимые для приложений GUI
+  environment:
+    # Переменная отображения для перенаправления X11
+    DISPLAY:
+    # Путь к файлу авторизации X для аутентификации
+    XAUTHORITY: "/root/.Xauthority"
+    # Отключить расширение MIT-SHM для X11 (требуется для Docker)
+    QT_X11_NO_MITSHM: "1"
+    # Каталог выполнения сеансов пользователя
+    XDG_RUNTIME_DIR:
+  # Монтировать сокет X11 для перенаправления GUI
+  volumes:
+    # Монтировать каталог сокета X11 для отображения GUI
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    # Монтировать файл авторизации X для аутентификации X11
+    - ${HOME}/.Xauthority:/root/.Xauthority
+
+# Шаблон переменных окружения для приложений GUI
+x-gui_env: &env_gui # Переменная отображения X11
+  DISPLAY:
+  # Путь к файлу авторизации X
+  XAUTHORITY: "/root/.Xauthority"
+  # Отключить расширение MIT-SHM для совместимости X11
+  QT_X11_NO_MITSHM: "1"
+  # Каталог для файлов выполнения
+  XDG_RUNTIME_DIR:
+
+# Базовая конфигурация для сервисов, не требующих GUI
+x-basic-nogui:
+  &basic_nogui # Разрешить обмен данными между процессами в контейнере и хостом
+  ipc: host
+  # Включить stdin для интерактивных команд
+  stdin_open: true
+  # Использовать сетевой стек хоста для прямого доступа к сети хоста
+  network_mode: host
+  # Выделить псевдо-TTY для интерактивных процессов
+  tty: true
+  # Предоставить расширенные привилегии контейнеру
+  # ПРЕДУПРЕЖДЕНИЕ: Это снижает безопасность, но необходимо для некоторых функций ROS2
+  privileged: true
+  # Переменные окружения, специфичные для ROS2
+  environment:
+    # Реализация промежуточного ПО ROS2
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    # ID домена ROS для изоляции сети
+    ROS_DOMAIN_ID: 0
+    # Версия дистрибутива ROS
+    ROS_DISTRO: jazzy
+    # Путь к файлу конфигурации CycloneDDS
+    CYCLONEDDS_URI: file:///cyclonedds.xml
+
+# Определить сервисы в Docker Compose
+
+services:
+  # Определение сервиса симулятора
+  simulator:
+    # Наследовать базовую конфигурацию из anchor
+    <<: *basic
+    # Docker-образ для использования в контейнере
+    image: walking_robot_sim:latest
+    # Имя экземпляра контейнера
+    container_name: walking_robot_sim
+    # Команда для выполнения при запуске контейнера
+    command: bash -c "source /opt/ros/jazzy/setup.bash && source /root/ws/install/setup.bash && tail -f /dev/null"
+    # Переменные окружения, специфичные для этого сервиса
+    environment:
+      # Наследовать переменные окружения GUI
+      <<: *env_gui
+      # Реализация промежуточного ПО ROS2
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      # Путь к ресурсам Gazebo
+      GAZEBO_RESOURCE_PATH: "/usr/share/gazebo-11"
+      # Путь к ресурсам симуляции Gazebo
+      GZ_SIM_RESOURCE_PATH: "/root/ws/src/gazebo_sim/models/"
+      # Путь к моделям Gazebo
+      GAZEBO_MODEL_PATH: "/usr/share/gazebo-11/models/:/opt/ros/jazzy/share/turtlebot3_gazebo/models/"
+      # Путь к файлу конфигурации CycloneDDS
+      CYCLONEDDS_URI: file:///cyclonedds.xml
+      # ID домена ROS для изоляции сети
+      ROS_DOMAIN_ID: 0
+      # Каталог рабочей области
+      WORKSPACE_DIR: "/root/ws"
+      # Каталог журналов ROS
+      ROS_LOG_DIR: "/root/ws/logs"
+      # Версия дистрибутива ROS
+      ROS_DISTRO: jazzy
+    # Конфигурация сборки для образа
+    build:
+      # Каталог контекста сборки (корень проекта)
+      context: ../../
+      # Путь к Dockerfile
+      dockerfile: src/docker/Dockerfile
+      # Аргументы сборки
+      args:
+        # Базовый образ для сборки
+        BASE_IMG: osrf/ros:jazzy-desktop
+        # Используемый дистрибутив ROS
+        ROS_DISTRO: jazzy
+      # Целевая стадия сборки для создания
+      target: final
+    # Тома для монтирования в контейнере
+    volumes:
+      # Монтировать файл конфигурации CycloneDDS
+      - ./cyclonedds.xml:/cyclonedds.xml:ro
+      # Логи ROS (относительно корня проекта)
+      - ../../logs/gazebo:/root/ws/logs
+      # Данные Gazebo (относительно корня проекта)
+      - ../../data/gazebo:/root/ws/data
+      # Исходный код проекта (монтируем только проект)
+      - project_src:/root/ws/src/
+
+    # Политика перезапуска для контейнера
+    restart: unless-stopped
+    # Конфигурация проверки работоспособности (временно отключена)
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD",
+    #       "bash",
+    #       "-c",
+    #       "source /opt/ros/jazzy/setup.bash && source /root/ws/install/setup.bash && ros2 node list",
+    #     ]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 60s
+    # Ограничения ресурсов — закомментированы для совместимости с CI (2 CPU)
+    # Раскомментируйте для локальной разработки с мощным железом
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 24G
+    #       cpus: "12.0"
+    #     reservations:
+    #       memory: 12G
+    #       cpus: "8.0"
+
+# Определить именованные тома
+volumes:
+  # Том для исходного кода проекта
+  project_src:
+    # Использовать локальный драйвер тома
+    driver: local
+    # Настройки тома для оптимизации производительности
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../src
