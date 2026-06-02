@@ -1,0 +1,6 @@
+# Request: path to JSON file with waypoints
+string file_path
+---
+# Result
+bool success
+string message

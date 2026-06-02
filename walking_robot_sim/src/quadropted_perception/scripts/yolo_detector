@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+from quadropted_perception.yolo_detector import main
+main()

@@ -1,0 +1,104 @@
+# .dockerignore - исключить ненужные файлы из build context
+# Это КРИТИЧЕСКИ важно для ускорения сборки!
+
+# VCS (Version Control System)
+.git
+.gitignore
+.gitmodules
+.github
+
+# Build outputs
+build/
+devel/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+*.egg-info/
+*.egg
+MANIFEST
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+.classpath
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.pid
+*.seed
+*.manifest
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Docker files
+docker-compose.override.yml
+.dockerignore
+Dockerfile
+
+# Test directories
+test_results/
+coverage/
+
+# ROS specific
+.ros/
+devel_isolated/
+install_isolated/
+build_isolated/
+
+# Gazebo
+.gazebo/
+.ignition/
+
+# Large data files
+*.bag
+*.rosbag
+*.rosbag.db3
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+azure-pipelines.yml
+.circleci/
+
+# Node modules (если используется)
+node_modules/
+
+# Others
+.cache/
+*.cache

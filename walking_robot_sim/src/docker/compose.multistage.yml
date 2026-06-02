@@ -1,0 +1,72 @@
+# docker/compose.yml - WalkingRobotSim v2.6
+
+services:
+  walking_robot_sim:
+    image: walking_robot_sim:latest
+    container_name: walking_robot_sim
+    ipc: host
+    stdin_open: true
+    tty: true
+    privileged: true
+    restart: on-failure:3
+    network_mode: host
+
+    environment:
+      ROS_DISTRO: jazzy
+      ROBOT_TYPE: Go2
+      ROS_DOMAIN_ID: 0
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      ROS_LOCALHOST_ONLY: "0"
+      DISPLAY: ${DISPLAY:-:0}
+      XAUTHORITY: ${HOME}/.Xauthority
+      QT_X11_NO_MITSHM: "1"
+      XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR:-/run/user/1000}
+      GAZEBO_RESOURCE_PATH: /usr/share/gazebo-11
+      GAZEBO_MODEL_PATH: /usr/share/gazebo-11/models/:/opt/ros/jazzy/share/turtlebot3_gazebo/models/
+      GZ_SIM_RESOURCE_PATH: /root/ws/src/gazebo_sim/models/
+      LD_LIBRARY_PATH: /usr/local/lib:/opt/ros/jazzy/lib
+      AMENT_PREFIX_PATH: /opt/ros/jazzy
+      CYCLONEDDS_URI: file:///cyclonedds.xml
+
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+      target: final
+      args:
+        ROS_DISTRO: jazzy
+        BASE_IMG: osrf/ros:jazzy-desktop
+        ROBOT_TYPE: Go2
+
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${HOME}/.Xauthority:${HOME}/.Xauthority:rw
+      - ./cyclonedds.xml:/cyclonedds.xml:ro
+      - ../:/root/ws/src:rw
+      - ros_sim_ccache:/root/.ccache
+      - ros_sim_apt_cache:/var/cache/apt
+
+    command: /bin/bash
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "source /opt/ros/jazzy/setup.bash && source /root/ws/install/setup.bash 2>/dev/null && ros2 topic list > /dev/null 2>&1",
+        ]
+      interval: 14s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - "seccomp=unconfined"
+
+volumes:
+  ros_sim_ccache:
+    driver: local
+  ros_sim_apt_cache:
+    driver: local

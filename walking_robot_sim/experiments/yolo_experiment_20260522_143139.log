@@ -1,0 +1,4 @@
+timestamp,class_id,class_name,confidence,center_x,center_y,width,height
+2026-05-22_11:31:52.161,25,umbrella,0.508,162.9,188.2,325.1,375.8
+2026-05-22_11:31:57.248,,,,no detections
+2026-05-22_11:32:02.345,56,chair,0.613,71.0,312.0,120.5,128.2

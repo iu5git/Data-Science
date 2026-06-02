@@ -1,0 +1,9 @@
+<library path="librviz_waypoint_tool">
+  <class name="rviz_waypoint_tool/WaypointTool"
+         type="rviz_waypoint_tool::WaypointTool"
+         base_class_type="rviz_common::Tool">
+    <description>
+      A tool to set custom goal poses for waypoint collection without triggering Nav2 navigation.
+    </description>
+  </class>
+</library>

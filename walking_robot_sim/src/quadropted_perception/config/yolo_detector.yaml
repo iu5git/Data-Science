@@ -1,0 +1,10 @@
+/yolo_detector:
+  ros__parameters:
+    model: "yolov8n.pt"
+    confidence_threshold: 0.5
+    iou_threshold: 0.45
+    camera_topic: "/robot1/color/image_raw"
+    device: "cpu"
+    frame_id: "camera_link"
+    log_interval_sec: 0.0
+    log_file: ""

@@ -1,0 +1,6 @@
+# Request: empty
+---
+# Result
+bool success
+string message
+quadropted_msgs/Waypoint[] waypoints
